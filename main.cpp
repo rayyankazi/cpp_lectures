@@ -20,8 +20,13 @@ int main()
         // std::cout << date << '\n';
 
         // TYPE NAME VALUE
-        std::string name {};
-        std::cout << "Please enter a name: ";
+        std::string      name {};        //  allocates space to store characters
+        std::string_view msg {"Please enter a name: "};
+        // std::string_view name {};        // it's like VR goggles -> doesn't allocate space for characters
+        // std::getline(std::cin, name);
+
+        std::cout << msg;
+
         auto ch {'\0'};
         // Processes one line of input character by character until '\n' is found.
         // This loop will display the '\n' character as well.
@@ -50,4 +55,6 @@ int main()
         // Task: Check if the character in the name is a vowel. Then we print a number in its place.
         // a - 4, e - 3, i - 1, o - 0, u - _
         // For example: Joe Rogan -> J03 R0g4n
+
+        // Copy, Substring, Find, Join
 }
