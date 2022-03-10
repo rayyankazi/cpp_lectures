@@ -1,4 +1,5 @@
 #include <algorithm>          // std::remove
+#include <cctype>             // std::isspace
 #include <iostream>           // std::cin
 #include <string>             // std::string
 #include <string_view>        // std::string_view
@@ -17,24 +18,45 @@ int main()
         // "Amine Mihoubi"
         // Task: Check if the input string contains no space characters in the front.
 
-        // lstrip or trim or remove the leading space character
-        while (true)
+        constexpr auto is_space = [](const char c) { return c == ' '; };
+        const auto  sp = std::find_if_not(name.begin(), name.end(), is_space);
+        if (sp != name.end())
         {
-                // find the location of the first space character starting from the beginning to the end of name
-                const auto space_pos = std::find(name.begin(), name.end(), ' ');
-                // remove the space character at this location
-                const auto c         = name.erase(space_pos);
-                if (c[0] != ' ') { break; }
+                std::cout << sp[0] << '\n';
+
+                const auto beg       = name.find(*sp);
+                // print the first and lastnames as Firstname.Lastname
+                const auto space_pos = name.find(' ', beg);
+                std::cout << space_pos - beg << '\n';
+                firstname = name.substr(beg, space_pos - beg);        // get the first part of the string until ' '
+                lastname  = name.substr(space_pos + 1);               // get the rest of the string
+
+                // put the first and lastnames together joined by a '.'
+                std::string fullname {firstname};
+                (fullname += '.') += lastname;
+                std::cout << fullname << '\n';
         }
-        std::cout << name << '\n';
 
-        // print the first and lastnames as Firstname.Lastname
-        const auto space_pos = name.find(' ');
-        firstname            = name.substr(0, space_pos);         // get the first part of the string until ' '
-        lastname             = name.substr(space_pos + 1);        // get the rest of the string
+        // lstrip or trim or remove the leading space character
+        // while (true)
+        // {
+        //         if (name[0] != ' ') { break; }
 
-        // put the first and lastnames together joined by a '.'
-        std::string fullname {firstname};
-        (fullname += '.') += lastname;
-        std::cout << fullname << '\n';
+        //         // find the location of the first space character starting from the beginning to the end of name
+        //         const auto space_pos = std::find(name.begin(), name.end(), ' ');
+        //         // remove the space character at this location
+        //         const auto c         = name.erase(space_pos);
+        //         if (c[0] != ' ') { break; }
+        // }
+        // std::cout << name << '\n';
+
+        // // print the first and lastnames as Firstname.Lastname
+        // const auto space_pos = name.find(' ');
+        // firstname            = name.substr(0, space_pos);         // get the first part of the string until ' '
+        // lastname             = name.substr(space_pos + 1);        // get the rest of the string
+
+        // // put the first and lastnames together joined by a '.'
+        // std::string fullname {firstname};
+        // (fullname += '.') += lastname;
+        // std::cout << fullname << '\n';
 }
