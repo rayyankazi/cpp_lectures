@@ -42,8 +42,8 @@ int main()
         // The Quick Brown Fox Jumps Over the Lazy Dog
 
         std::string_view str {"The Quick Brown Fox Jumps Over the Lazy Dog"};
-        int              num_vowels {0};
         // Method #1
+        // int              num_vowels {0};
         // for (const auto c : str)
         // {
         //         const auto ch = std::tolower(c);
@@ -81,10 +81,17 @@ int main()
         // }
         // std::cout << num_vowels << '\n';
 
+        // Method #4
+        // const auto       num_vowels = std::count_if(str.begin(), str.end(), [](const auto c) {
+        //         const auto ch = std::tolower(c);
+        //         return (ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u');
+        // });
+        // std::cout << num_vowels << '\n';
+
         // Task: Count all consonants in string_view. (Hint: Consonants are the alphabet that's not a vowel. See `find_first_not_of`)
 
         // TODO(CA): Count everything that's not a vowel using find. Find the substrings and length of substring - vowels.
-        int              num_consonents {0};
+        // int              num_consonents {0};
         // for (const auto v : "AaEeIiOoUu")
         // {
         //         // take vowel and find all occurences of it in str.
@@ -100,15 +107,15 @@ int main()
         //                 else { break; }
         //         }
         // }
-        const auto       sz = std::count_if(str.begin(), str.end(), [](const auto c) { return std::isalpha(c); });
-        num_consonents      = sz - num_vowels;
 
-        // count all characters in string that are alphabet and subtract from the vowels.
-        // const auto sz       = std::count_if(str.begin(), str.end(), [](const auto c) {
-        //         const auto lch = std::tolower(c);
-        //         const auto isv = lch == 'a' || lch == 'e' || lch == 'i' || lch == 'o' || lch == 'u';
-        //         return isv;
-        // });
-        // num_consonents      = str.size() - sz;
+        // Checks if the given character is a consonant.
+        constexpr auto   is_consonant = [](const auto c) {
+                if (!std::isalpha(c)) { return false; }
+
+                const auto lch = std::tolower(c);
+                return !(lch == 'a' || lch == 'e' || lch == 'i' || lch == 'o' || lch == 'u');
+        };
+
+        const auto num_consonents = std::count_if(str.begin(), str.end(), is_consonant);
         std::cout << num_consonents << '\n';
 }
