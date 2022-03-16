@@ -1,7 +1,10 @@
 #include <algorithm>        // std::accumulate, std::reduce
 #include <array>            // std::array
 #include <iostream>         // std::cout, std::cin, std::scanf
-#include <utility>          // std::pair
+#include <iterator>         // std::istream_iterator
+#include <sstream>
+#include <string>         // std::string
+#include <utility>        // std::pair
 
 constexpr auto NUM_FUNCTIONS = 7;
 
@@ -59,6 +62,7 @@ constexpr std::array<BinaryFn, NUM_FUNCTIONS> FN {nullptr, add};
 
 auto                                          main() -> int
 {
+        /*
         std::cout << "Calculator v0.3" << '\n';
 
         char opt {};
@@ -70,14 +74,26 @@ auto                                          main() -> int
                         std::cout << "Unknown operation selected. Please select again." << '\n';
                         continue;
                 }
-                std::cout << "Result: " << FN[op](a, b) << '\n';
+                const auto fn = FN[op];
+                std::cout << "Result: " << fn(a, b) << '\n';
                 if (!ask_user_continue()) { break; }
         } while (true);
+        */
 
         // Example: User gives a list of numbers to compute the sum of.
         std::cout << "Enter a list of numbers separated by a space (0 to terminate): ";
         std::vector<float> nums {};
+        float              num {};
         do {
                 std::cin >> num;
-        } while (expression)
+                if (num == 0) { break; }
+                nums.push_back(num);
+        } while (true);
+
+        // std::istream_iterator to process directly from std::cin
+        // Pointers (*), References (&), nullptr, Lambda Expressions
+        // Structs
+        float sum {};
+        std::for_each(nums.begin(), nums.end(), [&](float x) { sum += x; });
+        std::cout << sum << '\n';
 }
