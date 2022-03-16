@@ -54,7 +54,7 @@ constexpr auto                                nop(float x, float y) -> float { r
 
 constexpr auto                                add(float x, float y) -> float { return x + y; }
 
-constexpr std::array<BinaryFn, NUM_FUNCTIONS> FN {nop, add};
+constexpr std::array<BinaryFn, NUM_FUNCTIONS> FN {nullptr, add};
 
 auto                                          main() -> int
 {
@@ -64,17 +64,12 @@ auto                                          main() -> int
         do {
                 const auto op     = ask_user_arithemtic();
                 const auto [a, b] = ask_user_numbers();
-                switch (op)
+                const auto fn = FN[op];
+                if (fn == nullptr)
                 {
-                        case 1: res = add(a, b);
-                        case 2: res = a - b;
-                        case 3: res = a * b;
-                        case 4: res = a / b;
-                        case 5:
-                        case 6:
-                        default: std::cout << "Unknown operation selected. Please select again." << '\n'; continue;
+                        std::cout << "Unknown operation selected. Please select again." << '\n'; continue;
                 }
-                std::cout << "Result: " << res << '\n';
+                std::cout << "Result: " << fn(a, b) << '\n';
                 if (!ask_user_continue()) { break; }
         } while (true);
 }
