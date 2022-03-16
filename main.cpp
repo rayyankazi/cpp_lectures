@@ -1,6 +1,7 @@
-#include <array>           // std::array
-#include <iostream>        // std::cout, std::cin, std::scanf
-#include <utility>         // std::pair
+#include <algorithm>        // std::accumulate, std::reduce
+#include <array>            // std::array
+#include <iostream>         // std::cout, std::cin, std::scanf
+#include <utility>          // std::pair
 
 constexpr auto NUM_FUNCTIONS = 7;
 
@@ -64,13 +65,19 @@ auto                                          main() -> int
         do {
                 const auto op     = ask_user_arithemtic();
                 const auto [a, b] = ask_user_numbers();
-                const auto fn     = FN[op];
-                if (fn == nullptr)
+                if (op < 1 || op > 6)
                 {
                         std::cout << "Unknown operation selected. Please select again." << '\n';
                         continue;
                 }
-                std::cout << "Result: " << fn(a, b) << '\n';
+                std::cout << "Result: " << FN[op](a, b) << '\n';
                 if (!ask_user_continue()) { break; }
         } while (true);
+
+        // Example: User gives a list of numbers to compute the sum of.
+        std::cout << "Enter a list of numbers separated by a space (0 to terminate): ";
+        std::vector<float> nums {};
+        do {
+                std::cin >> num;
+        } while (expression)
 }
