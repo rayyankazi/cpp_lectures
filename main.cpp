@@ -1,49 +1,80 @@
-#include <array>
-#include <iostream>
-#include <string>
-#include <string_view>
-#include <algorithm> // std::count_if
+#include <array>           // std::array
+#include <iostream>        // std::cout, std::cin, std::scanf
+#include <utility>         // std::pair
 
-constexpr auto MAX_WORD_LEN = 32;
+constexpr auto NUM_FUNCTIONS = 7;
 
-auto           copy_word(const std::string& src, const int i, std::array<char, MAX_WORD_LEN>& dst, const char delim = ' ') -> int
+auto           ask_user_continue() -> bool
 {
-        dst.fill('\0');
-
-        // copy into word from input till whitespace character is found
-        int n = 0;
-        for (auto k = 0, j = i; j < src.size() && k < dst.size(); k += 1, j += 1)
-        {
-                const auto ch = src[j];
-                if (ch == delim) { break; }
-                dst[k] = src[j];
-                n += 1;        // increment the no. of characters copied
-        }
-
-        return n;
+        std::cout << "Would you like to continue (y/n): ";
+        char opt {};
+        std::cin >> opt;
+        return opt != 'n';
 }
 
-auto main() -> int
+auto ask_user_arithemtic() -> int
 {
-        // Input: The quick brown fox jumps over the lazy dog
-        //         3   5      5    3   5    4     3    4  3
-        std::array<char, MAX_WORD_LEN> word {};
+        std::cout << "Press 'a' for addition." << '\n';
+        std::cout << "Press 's' for subtraction." << '\n';
+        std::cout << "Press 'm' for multiplication." << '\n';
+        std::cout << "Press 'd' for division." << '\n';
+        std::cout << "Press 'r' for remainder." << '\n';
+        std::cout << "Press 'p' for power." << '\n';
 
-        std::cout << "Enter a few words: ";
-        std::string input {};
-        std::getline(std::cin, input);
+        char opt {};
+        std::cin >> opt;
+        switch (opt)
+        {
+                case 'a': return 1;
+                case 's': return 2;
+                case 'm': return 3;
+                case 'd': return 4;
+                case 'r': return 5;
+                case 'p': return 6;
+                default: return 0;
+        }
+}
 
-        std::cout << "Input: " << input << '\n';
-        std::cout << input.size() << '\n';
+auto ask_user_numbers() -> std::pair<float, float>
+{
+        std::cout << "Enter two numbers (x y): ";
+        float x {}, y {};
+        std::scanf("%f %f", &x, &y);
+        return std::make_pair(x, y);
+}
 
-        // Use a loop to extract and count the number of characters in each word in the sentence.
-        int i = 0;
+// Task 1 -> Implement the power and remainder operations.
+// Task 2 -> Declare the `res` variable.
+// Task 3 -> Create an array containing functions that perform arithmetic. (Hint: See example)
+
+// Keyword: Function Signature -> ReturnType (Parameters...)
+using BinaryFn = float (*)(float, float);
+
+constexpr auto                                nop(float x, float y) -> float { return 0; }
+
+constexpr auto                                add(float x, float y) -> float { return x + y; }
+
+constexpr std::array<BinaryFn, NUM_FUNCTIONS> FN {nop, add};
+
+auto                                          main() -> int
+{
+        std::cout << "Calculator v0.3" << '\n';
+
+        char opt {};
         do {
-                // copy into word from input till whitespace character is found
-                const auto n = copy_word(input, i, word, ' ');
-                i += (n + 1);        // move the cursor by n steps
-
-                // count number of valid characters in word
-                std::cout << "[" << word.data() << "] - " << n << '\n';
-        } while (i < input.size());
+                const auto op     = ask_user_arithemtic();
+                const auto [a, b] = ask_user_numbers();
+                switch (op)
+                {
+                        case 1: res = add(a, b);
+                        case 2: res = a - b;
+                        case 3: res = a * b;
+                        case 4: res = a / b;
+                        case 5:
+                        case 6:
+                        default: std::cout << "Unknown operation selected. Please select again." << '\n'; continue;
+                }
+                std::cout << "Result: " << res << '\n';
+                if (!ask_user_continue()) { break; }
+        } while (true);
 }
