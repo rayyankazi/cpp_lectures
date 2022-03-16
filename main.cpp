@@ -64,10 +64,11 @@ auto                                          main() -> int
         do {
                 const auto op     = ask_user_arithemtic();
                 const auto [a, b] = ask_user_numbers();
-                const auto fn = FN[op];
+                const auto fn     = FN[op];
                 if (fn == nullptr)
                 {
-                        std::cout << "Unknown operation selected. Please select again." << '\n'; continue;
+                        std::cout << "Unknown operation selected. Please select again." << '\n';
+                        continue;
                 }
                 std::cout << "Result: " << fn(a, b) << '\n';
                 if (!ask_user_continue()) { break; }
