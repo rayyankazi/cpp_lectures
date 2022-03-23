@@ -1,63 +1,32 @@
-#include <cmath>
+#include <algorithm>
 #include <iostream>
 #include <vector>
 
-constexpr auto MAX_OPERATIONS = 6;
+// Find, Modify, Filter
 
-/*
-    Add, Sub, Mul, Div
-    New Operations: Power and Remainder
-*/
+auto get_numbers()
+{
+        std::vector<int> nums {};
+        std::cout << "Enter a list of numbers (0 to terminate): ";
+        do {
+                int num {};
+                std::cin >> num;
+                nums.push_back(num);
+                if (num == 0) { break; }
+        } while (true);
 
-auto           add(float x, float y) { return x + y; }
-auto           sub(float x, float y) { return x - y; }
-auto           mul(float x, float y) { return x * y; }
-auto           div(float x, float y) { return x / y; }
+        return nums;
+}
 
-using BinaryOp = float (*)(float, float);
+auto is_odd(int x) { return (x % 2 != 0); }
 
 auto main() -> int
 {
-        std::vector<BinaryOp> ops {add, sub, mul, div};
+        auto nums = get_numbers();
 
-        std::cout << "Calc v0.1" << '\n';
-        do {
-                std::cout << "Enter 0 to exit." << '\n';
-                std::cout << "Select operation (1: Add, 2: Sub, 3: Mul, 4: Div), (5-6) Slot Available for `Pow` and `Rem`: ";
+        // find the first odd number
+        // auto podd = std::find_if(nums.begin(), nums.end(), is_odd);
+        // std::cout << *podd << '\n';
 
-                int uop {};
-                std::cin >> uop;
-                if (uop < 1 || uop > 4)
-                {
-                        if (uop == 0) { break; }
-
-                        if (uop > 4 && uop < MAX_OPERATIONS)
-                        {
-                                // user probably wants to add new functions
-                                if (ops.size() < (MAX_OPERATIONS + 1))
-                                {
-                                        std::cout << "(p)Pow, (r)Rem: ";
-                                        char selection {};
-                                        std::cin >> selection;
-                                        if (selection == 'p') { ops.push_back(std::pow); }
-                                        else if (selection == 'r') { ops.push_back(std::fmod); }
-                                }
-                        }
-                        else
-                        {
-                                std::cout << "Invalid operation selected. Please try again!";
-                                continue;
-                        }
-                }
-
-                const auto op = ops[uop - 1];
-
-                float      x {}, y {};
-                std::cout << "Enter two numbers (a b): ";
-                std::cin >> x;
-                std::cin >> y;
-
-                const auto res = op(x, y);
-                std::cout << "Result: " << res << '\n';
-        } while (true);
+        // count_if -> count the no. of even numbers
 }
