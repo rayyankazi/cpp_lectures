@@ -1,35 +1,44 @@
 #include <algorithm>
 #include <iostream>
-#include <string>
 #include <vector>
 
-// The Sky is blue -> [The, Sky, is, blue]
-// TheSkyBlue
-
-using Words = std::vector<std::string>;
-
-auto extract_words(Words& words, std::string text, std::string_view separators)
+enum class ShoeBrands
 {
-        auto   start = text.find_first_not_of(separators);
-        size_t end {};
+        Nike,
+        Adidas,
+        Clarks,
+};
 
-        while (start != std::string::npos)
-        {
-                end = text.find_first_of(separators, start + 1);
-                if (end == std::string_view::npos) { end = text.length(); }
-                std::string s {text.substr(start, end - start)};
-                words.push_back(s);
-                start = text.find_first_not_of(separators, end + 1);
-        }
-}
+struct DatabaseItem
+{
+        ShoeBrands brand;
+        float      cost;
+};
+
+auto operator==(DatabaseItem& lhs, DatabaseItem& rhs) -> bool { return lhs.brand == rhs.brand; }
 
 auto main() -> int
 {
-        std::cout << "Enter some text: ";
-        std::string input {};
-        std::getline(std::cin, input);
-        Words words {};
-        extract_words(words, input, " \t");
+        DatabaseItem x1 {ShoeBrands::Adidas, 45.F};
+        DatabaseItem x2 {ShoeBrands::Nike, 70.F};
+        const auto   is_same = x1 == x2;
+        std::cout << is_same << '\n';
 
-        std::for_each(words.begin(), words.end(), [](auto& w) { std::cout << w << '\n'; });
+        /*
+        std::vector<DatabaseItem> database {};
+
+        std::cin >> brand_input;
+
+        std::vector<int> numbers {};
+        while (true)
+        {
+                int number {};
+                std::cin >> number;
+                numbers.push_back(number);
+                if (number == 0) { break; }
+        }
+
+        const auto n = std::count_if(numbers.begin(), numbers.end(), [](int x) { return (x % 2 != 0); });
+        std::cout << "Number of odd numbers: " << n << '\n';
+        */
 }
