@@ -4,8 +4,11 @@
 
 // Enumerations and Structures
 
+#include <algorithm>
 #include <array>
 #include <iostream>
+#include <string_view>
+#include <vector>
 
 // Exercise: Add another enumeration to Product. Similarly, extend the PRODUCT_NAMES array with the name for the new product and update the
 // print_message function to show this new product.
@@ -23,11 +26,11 @@ enum class Product
 
 struct Item
 {
-        Product product;
-        float   price;
-        Color   color;
+        Product          product;
+        float            price;
+        Color            color;
+        std::string_view name;
 };
-
 
 constexpr std::string_view PRODUCT_NAMES[static_cast<int>(Product::Count)] = {
     [static_cast<int>(Product::IPad)]      = "iPad",
@@ -53,18 +56,70 @@ auto print_item(const Item& item)
         // Exercise: Print the name of the color.
 }
 
+using Items = std::vector<Item>;
+
+auto add_item(Items& items, const Product product, const float price, const Color color, std::string_view name)
+{
+        items.emplace_back(product, price, color, name);
+}
 
 auto main() -> int
 {
-        print_message();
+        // print_message();
 
-        int opt {};
+        // int opt {};
+        // std::cin >> opt;
+
+        // std::cout << PRODUCT_NAMES[opt] << '\n';
+
+        // Item iphone7 {};
+        // iphone7.product = Product::IPhone;
+        // iphone7.price   = 359.99;        // GBP
+        // iphone7.color = ...; // Exercise: Assign a color.
+
+        // print_item(iphone7);
+
+        Items items {};
+
+        std::cout << "Select operation (a)Add, (r)Remove, (s)Search: ";
+
+        char opt;
         std::cin >> opt;
 
-        std::cout << PRODUCT_NAMES[opt] << '\n';
+        Item        item;
 
-        Item iphone7 {};
-        iphone7.product = Product::IPhone;
-        iphone7.price   = 359.99;        // GBP
-        iphone7.color = ...; // Exercise: Assign a color.
+        int         product_id {}, color_id {};
+        std::string product_name;
+        switch (opt)
+        {
+                case 'a':
+                        print_message();
+                        std::cin >> product_id;
+                        item.product = get_product(product_id);
+
+                        std::cout << "Enter the price: ";
+                        std::cin >> item.price;
+
+                        std::cout << "Select color (0: Red, 1: Green, 2: Blue): ";
+                        std::cin >> color_id;
+                        item.color = get_color(color_id);
+
+                        std::cout << "Enter the name: ";
+                        std::getline(std::cin, product_name);
+                        item.name = product_name;
+
+                        items.push_back(item);
+
+                        break;
+                case 'r': break;
+                case 's': 
+                        std::cout << "Enter the name of item: ";
+                        std::cin >> product_name;
+                        const auto pitem = std::find_if(items.begin(), items.end(), [&](const auto& item){ return item.name == product_name; });
+                        print_item(*pitem);
+                break;
+                default: std::cout << "Unknown operation" << '\n';
+        }
+
+        items.emplace_back(Product::IPhone, 359.99, Color::Red, "iPhone 7");
 }
