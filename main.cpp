@@ -24,15 +24,22 @@ constexpr std::string_view PRODUCT_NAMES[static_cast<int>(Product::Count)] = {
         [static_cast<int>(Product::IPhone)]    = "iPhone",
 };
 
+using ProductNames = std::string_view[static_cast<int>(Product::Count)];
+
+constexpr auto get_product_name(Product p)
+{
+        return PRODUCT_NAMES[static_cast<int>(p)].data();
+}
+
 constexpr auto print_message()
 {
         std::printf("Select Apple Product (%d: %s, %d: %s, %d: %s): ",
                 static_cast<int>(Product::IPhone),
-                PRODUCT_NAMES[static_cast<int>(Product::IPhone)].data(),
+                get_product_name(Product::IPhone),
                 static_cast<int>(Product::IPad),
-                PRODUCT_NAMES[static_cast<int>(Product::IPad)].data(),
+                get_product_name(Product::IPad),
                 static_cast<int>(Product::MacStudio),
-                PRODUCT_NAMES[static_cast<int>(Product::MacStudio)].data());
+                get_product_name(Product::MacStudio));
 }
 
 auto main() -> int {
