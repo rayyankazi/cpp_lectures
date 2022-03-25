@@ -7,25 +7,39 @@
 #include <array>
 #include <iostream>
 
-// Colors
-enum class Color
+// Exercise: Add another enumeration to Product. Similarly, extend the PRODUCT_NAMES array with the name for the new product and update the print_message function to show this new product.
+
+// Apple Products
+enum class Product
 {
-        Red,
-        Green,
-        Blue,
-        Count
+        IPhone,
+        IPad,
+        MacStudio,
+        Count,
 };
 
-// Properties
-enum class ColorProperty
-{
-        Saturation,
-        Brightness,
-        Value,
+constexpr std::string_view PRODUCT_NAMES[static_cast<int>(Product::Count)] = {
+        [static_cast<int>(Product::IPad)]      = "iPad",
+        [static_cast<int>(Product::MacStudio)] = "Mac Studio",
+        [static_cast<int>(Product::IPhone)]    = "iPhone",
 };
 
-constexpr std::array<std::string_view, static_cast<int>(Color::Count)> COLORS {"Red", "Green", "Blue"};
+constexpr auto print_message()
+{
+        std::printf("Select Apple Product (%d: %s, %d: %s, %d: %s): ",
+                static_cast<int>(Product::IPhone),
+                PRODUCT_NAMES[static_cast<int>(Product::IPhone)].data(),
+                static_cast<int>(Product::IPad),
+                PRODUCT_NAMES[static_cast<int>(Product::IPad)].data(),
+                static_cast<int>(Product::MacStudio),
+                PRODUCT_NAMES[static_cast<int>(Product::MacStudio)].data());
+}
 
-auto                                                      get_color(Color c) { return COLORS[static_cast<int>(c)]; }
+auto main() -> int {
+        print_message();
 
-auto                                                      main() -> int { std::cout << get_color(Color::Green) << '\n'; }
+        int opt {};
+        std::cin >> opt;
+
+        std::cout << PRODUCT_NAMES[opt] << '\n';
+}
