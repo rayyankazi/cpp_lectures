@@ -1,125 +1,65 @@
-// T2 - Beginning C++17
-// Chapter 3, Pg. 77 - 80
-// Chapter 11, Pg. 386
-
-// Enumerations and Structures
-
-#include <algorithm>
-#include <array>
 #include <iostream>
-#include <string_view>
-#include <vector>
 
-// Exercise: Add another enumeration to Product. Similarly, extend the PRODUCT_NAMES array with the name for the new product and update the
-// print_message function to show this new product.
+enum class Brands
+{
+        Invalid = -1,
+        Huawei,
+        Apple,
+        Samsung,
+        Count
+};
 
-// Exercise: Define a Color enumeration class with a list of your colors.
-
-// Apple Products
-enum class Product
+enum class AppleProducts
 {
         IPhone,
         IPad,
-        MacStudio,
-        Count,
+        MacBook,
+        Airpods,
+        Count
 };
 
-struct Item
+enum class SamsungProducts
 {
-        Product          product;
-        float            price;
-        Color            color;
-        std::string_view name;
+        Galaxy,
+        ZFold,
+        Note,
+        Count
 };
 
-constexpr std::string_view PRODUCT_NAMES[static_cast<int>(Product::Count)] = {
-    [static_cast<int>(Product::IPad)]      = "iPad",
-    [static_cast<int>(Product::MacStudio)] = "Mac Studio",
-    [static_cast<int>(Product::IPhone)]    = "iPhone",
-};
-
-using ProductNames = std::string_view[static_cast<int>(Product::Count)];
-
-constexpr auto get_product_name(Product p) { return PRODUCT_NAMES[static_cast<int>(p)].data(); }
-
-constexpr auto print_message()
+auto print_brands()
 {
-        std::printf("Select Apple Product (%d: %s, %d: %s, %d: %s): ", static_cast<int>(Product::IPhone), get_product_name(Product::IPhone),
-                    static_cast<int>(Product::IPad), get_product_name(Product::IPad), static_cast<int>(Product::MacStudio),
-                    get_product_name(Product::MacStudio));
+        std::printf("Select from brands ");
+        std::printf("(%d)%s,", static_cast<int>(Brands::Apple), "Apple");
+        std::printf("(%d)%s,", static_cast<int>(Brands::Huawei), "Huawei");
+        std::printf("(%d)%s: ", static_cast<int>(Brands::Samsung), "Samsung");
+        std::printf("\n");
 }
 
-auto print_item(const Item& item)
+auto get_brand_from_user()
 {
-        std::cout << "Product: " << get_product_name(item.product) << '\n';
-        std::cout << "Price: " << item.price << '\n';
-        // Exercise: Print the name of the color.
-}
+        int opt {};
+        std::scanf("%d", &opt);
+        if (opt < static_cast<int>(Brands::Huawei) || opt >= static_cast<int>(Brands::Count))
+        {
+                std::cout << "Invalid brand selected" << '\n';
+                return Brands::Invalid;
+        }
 
-using Items = std::vector<Item>;
-
-auto add_item(Items& items, const Product product, const float price, const Color color, std::string_view name)
-{
-        items.emplace_back(product, price, color, name);
+        return static_cast<Brands>(opt);
 }
 
 auto main() -> int
 {
-        // print_message();
+        do {
+                print_brands();
 
-        // int opt {};
-        // std::cin >> opt;
-
-        // std::cout << PRODUCT_NAMES[opt] << '\n';
-
-        // Item iphone7 {};
-        // iphone7.product = Product::IPhone;
-        // iphone7.price   = 359.99;        // GBP
-        // iphone7.color = ...; // Exercise: Assign a color.
-
-        // print_item(iphone7);
-
-        Items items {};
-
-        std::cout << "Select operation (a)Add, (r)Remove, (s)Search: ";
-
-        char opt;
-        std::cin >> opt;
-
-        Item        item;
-
-        int         product_id {}, color_id {};
-        std::string product_name;
-        switch (opt)
-        {
-                case 'a':
-                        print_message();
-                        std::cin >> product_id;
-                        item.product = get_product(product_id);
-
-                        std::cout << "Enter the price: ";
-                        std::cin >> item.price;
-
-                        std::cout << "Select color (0: Red, 1: Green, 2: Blue): ";
-                        std::cin >> color_id;
-                        item.color = get_color(color_id);
-
-                        std::cout << "Enter the name: ";
-                        std::getline(std::cin, product_name);
-                        item.name = product_name;
-
-                        items.push_back(item);
-
-                        break;
-                case 'r': break;
-                case 's': 
-                        std::cout << "Enter the name of item: ";
-                        std::cin >> product_name;
-                        const auto pitem = std::find_if(items.begin(), items.end(), [&](const auto& item){ return item.name == product_name; });
-                        print_item(*pitem);
-                break;
-                default: std::cout << "Unknown operation" << '\n';
-        }
-
-        items.emplace_back(Product::IPhone, 359.99, Color::Red, "iPhone 7");
+                const auto ub = get_brand_from_user();
+                switch (ub)
+                {
+                        case Brands::Huawei: std::printf("Huawei\n"); break;
+                        case Brands::Apple: std::printf("Apple\n"); break;
+                        case Brands::Samsung: std::printf("Samsung\n"); break;
+                        default: std::printf("Invalid brand selected. Please try again.\n");
+                }
+        } while (true);
 }
