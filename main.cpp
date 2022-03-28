@@ -33,6 +33,7 @@ std::vector<std::string> PRODUCT_NAMES {
         "iPhone",
 };
 
+constexpr auto NUM_BRANDS = 3;
 
 struct Item
 {
@@ -40,6 +41,7 @@ struct Item
         int         stock;
         float       price;
         std::string name;
+        std::string brand;
 
         Item() = default;
         Item(Products p, int num_stock, float price, std::string_view name) : product {p}, stock {num_stock}, price {price}, name {name} {}
@@ -72,7 +74,7 @@ auto get_product_details()
 
 using Items = std::vector<Item>;
 
-auto search_item(const Items& items)
+auto search_item(Items& items)
 {
         char sopt {};
         std::cout << "(n)Search by Name, (p)Search by Product: ";
@@ -107,6 +109,12 @@ auto main() -> int
                 {
                         const auto pitem = search_item(items);
                         std::cout << pitem->name << '\n';
+                }
+                else if (opt == 'e')
+                {
+                        //
+                        auto pitem = search_item(items);
+                        std::cin >> pitem->name;
                 }
                 else
                 {
