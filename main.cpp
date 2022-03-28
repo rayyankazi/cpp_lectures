@@ -1,65 +1,37 @@
 #include <iostream>
 
-enum class Brands
+enum class Products
 {
         Invalid = -1,
-        Huawei,
-        Apple,
-        Samsung,
-        Count
+        productsStart,
+
+        samsungStart,
+        SamsungGalaxy,
+        SamsungNote,
+        SamsungZFold,
+        samsungStop,
+
+        appleStart,
+        AppleIPhone,
+        AppleIPad,
+        AppleMacBook,
+        appleStop,
+
+        productsEnd,
 };
 
-enum class AppleProducts
+auto is_product(Products p)
 {
-        IPhone,
-        IPad,
-        MacBook,
-        Airpods,
-        Count
-};
-
-enum class SamsungProducts
-{
-        Galaxy,
-        ZFold,
-        Note,
-        Count
-};
-
-auto print_brands()
-{
-        std::printf("Select from brands ");
-        std::printf("(%d)%s,", static_cast<int>(Brands::Apple), "Apple");
-        std::printf("(%d)%s,", static_cast<int>(Brands::Huawei), "Huawei");
-        std::printf("(%d)%s: ", static_cast<int>(Brands::Samsung), "Samsung");
-        std::printf("\n");
+        return p > Products::productsStart && p < Products::productsEnd;
 }
 
-auto get_brand_from_user()
+auto is_apple_product(Products p)
 {
-        int opt {};
-        std::scanf("%d", &opt);
-        if (opt < static_cast<int>(Brands::Huawei) || opt >= static_cast<int>(Brands::Count))
-        {
-                std::cout << "Invalid brand selected" << '\n';
-                return Brands::Invalid;
-        }
-
-        return static_cast<Brands>(opt);
+        return p > Products::appleStart && p < Products::appleStop;
 }
 
 auto main() -> int
 {
-        do {
-                print_brands();
-
-                const auto ub = get_brand_from_user();
-                switch (ub)
-                {
-                        case Brands::Huawei: std::printf("Huawei\n"); break;
-                        case Brands::Apple: std::printf("Apple\n"); break;
-                        case Brands::Samsung: std::printf("Samsung\n"); break;
-                        default: std::printf("Invalid brand selected. Please try again.\n");
-                }
-        } while (true);
+        int opt {7};
+        std::cout << is_apple_product(static_cast<Products>(opt)) << '\n';
 }
