@@ -73,6 +73,8 @@ struct Item
         Item(const Product prod, const std::string& name, const float price, const int nstock) :
                 id {prod}, name {name}, price {price}, nstock {nstock}
         {}
+
+        auto print() const { std::printf("%32s%64s%16.2f%8d\n", get_product_name(id).data(), name.c_str(), price, nstock); }
 };
 
 /// Holds the inventory of all the stocked items in the store.
@@ -107,9 +109,7 @@ struct Inventory
         auto list()
         {
                 std::printf("%32s%64s%16s%8s\n", "Product", "Model Name", "Price (GBP)", "Qty.");
-                std::for_each(items.begin(), items.end(), [](const auto& item) {
-                        std::printf("%32s%64s%16.2f%8d\n", get_product_name(item.id).data(), item.name.c_str(), item.price, item.nstock);
-                });
+                std::for_each(items.begin(), items.end(), [](const auto& item) { item.print(); });
                 std::printf("---------------\n");
         }
 };
@@ -146,6 +146,7 @@ struct InventoryUI
                 char opt {};
                 std::printf("Select operation: ");
                 std::scanf(" %c", &opt);
+                std::printf("---------------\n");
                 return opt;
         }
 
@@ -203,6 +204,7 @@ struct InventoryUI
                         list_products();
                         std::printf("Select product id: ");
                         std::scanf("%d", &prod);
+                        std::printf("Selected product category: %s\n", get_product_name(prod).data());
 
                         pitem = inventory.search([&](const Item& item) { return item.id == prod; });
                 }
@@ -217,6 +219,9 @@ struct InventoryUI
                 {
                         // we ask the user what they'd like to do with this found item
                         do {
+                                pitem->print();
+                                std::printf("---------------\n");
+
                                 std::printf("(%c) Remove Item\n", static_cast<char>(Option::RemoveItem));
                                 std::printf("(%c) Edit Item\n", static_cast<char>(Option::EditItem));
                                 std::printf("(%c) Quit\n", static_cast<char>(Option::Quit));
