@@ -1,253 +1,273 @@
 #include <algorithm>
-#include <cmath>        // pow, fmod
-#include <functional>
+#include <ios>
 #include <iostream>
 #include <optional>
 #include <vector>
 
-/// Calc is an extensible calculator that in addition to performing the basic operations
-/// enables the user to add and perform new, but predefined, operations.
-namespace calc
+constexpr auto MAX_ITEMS      = 30;
+constexpr auto MAX_MODEL_NAME = 64;        // longest model name
+
+/// List of product categories stocked in store.
+enum class Product
 {
+        Invalid = -1,
+        Mac,
+        iPhone,
+        iPad,
+        AppleWatch,
+        AppleTV,
+        AirPods,
+        HomePodMini,
+        iPodTouch,
+        AirTag,
+        Accessories,
+        Count
+};
 
-        // List of arithmetic operations available in the calculator.
-        enum class Operations
-        {
-                Invalid = -1,
-                Addition,
-                Subtraction,
-                Multiplication,
-                Division,
-                Power,
-                Remainder,
-                Count
-        };
+/// @brief Holds the names of the product categories.
+constexpr std::string_view PRODUCT_NAMES[static_cast<int>(Product::Count)] = {
+    [static_cast<int>(Product::Mac)]         = "Mac",
+    [static_cast<int>(Product::iPhone)]      = "iPhone",
+    [static_cast<int>(Product::iPad)]        = "iPad",
+    [static_cast<int>(Product::AppleWatch)]  = "AppleWatch",
+    [static_cast<int>(Product::AppleTV)]     = "AppleTV",
+    [static_cast<int>(Product::AirPods)]     = "AirPods",
+    [static_cast<int>(Product::HomePodMini)] = "HomePodMini",
+    [static_cast<int>(Product::iPodTouch)]   = "iPodTouch",
+    [static_cast<int>(Product::AirTag)]      = "AirTag",
+    [static_cast<int>(Product::Accessories)] = "Accessories",
+};
 
-        /// @brief Checks if the given operation is valid.
+/// @brief Checks if the given product is valid.
+constexpr auto is_valid_product(Product prod) { return prod > Product::Invalid && prod < Product::Count; }
+
+/// @brief Return the name of the given product.
+constexpr auto get_product_name(Product prod)
+{
+        if (!is_valid_product(prod)) { return std::string_view {""}; }
+
+        return PRODUCT_NAMES[static_cast<int>(prod)];
+}
+
+/// @brief Prints a list of all the product categories available.
+auto list_products()
+{
+        std::cout << "Product list: \n";
+        std::for_each_n(std::begin(PRODUCT_NAMES), std::size(PRODUCT_NAMES), [i = 0](const auto& name) mutable {
+                std::printf("(%d) %s\n", i, name.data());
+                i++;
+        });
+        std::printf("---------------\n");
+}
+
+/// Represents a stocked item corresponding to one of the listed product categories.
+struct Item
+{
+        Product     id;            // Product category that item falls into
+        std::string name;          // Name of the item
+        float       price;         // Price in GBP
+        int         nstock;        // No. of units in stock
+
+        Item() = default;
+
+        Item(const Product prod, const std::string& name, const float price, const int nstock) :
+                id {prod}, name {name}, price {price}, nstock {nstock}
+        {}
+};
+
+/// Holds the inventory of all the stocked items in the store.
+struct Inventory
+{
+        using SearchPredicate = std::function<bool(const Item&)>;
+        using Items           = std::vector<Item>;
+        using ItemPtr         = Items::iterator;        // pointer to item type
+
+        Items items;
+
+        Inventory() { items.reserve(MAX_ITEMS); }
+
+        /// @brief Adds the given item to the inventory.
+        auto add(const Item& item) { items.emplace_back(item); }
+
+        /// @brief Deletes the given item from the inventory.
+        auto remove(ItemPtr pitem) { items.erase(pitem); }
+
+        /// @brief Look for the item for which the given predicate returns true.
         ///
-        /// @returns true if op > Invalid and op < Count.
-        auto           is_valid_op(Operations op) { return op > Operations::Invalid && op < Operations::Count; }
-
-        /// @brief Checks if the given operation is a default.
-        ///
-        /// @returns true if op is not Power and Remainder operation.
-        auto           is_default_op(Operations op) { return (op != Operations::Power) && (op != Operations::Remainder); }
-
-        /// @brief Returns the name of the given operation as string_view.
-        constexpr auto get_op_name(Operations op)
+        /// @returns nullptr if item is not found else pointer to item.
+        auto search(const SearchPredicate& pred) -> ItemPtr
         {
-                // OP_NAMES holds the names of the operations available.
-                constexpr std::string_view OP_NAMES[static_cast<int>(Operations::Count)] = {
-                    [static_cast<int>(Operations::Addition)]       = "Addition",
-                    [static_cast<int>(Operations::Subtraction)]    = "Subtraction",
-                    [static_cast<int>(Operations::Multiplication)] = "Multiplication",
-                    [static_cast<int>(Operations::Division)]       = "Division",
-                    [static_cast<int>(Operations::Power)]          = "Power",
-                    [static_cast<int>(Operations::Remainder)]      = "Remainder",
-                };
+                auto pitem = std::find_if(items.begin(), items.end(), pred);
+                if (pitem != items.end()) { return pitem; }
 
-                if (!is_valid_op(op)) { return std::string_view {""}; }
-
-                return OP_NAMES[static_cast<int>(op)];
+                return {};
         }
 
-        // An Instruction represents the arithmetic operation that a calculator can perform.
-        // Every instruction has the following structure <Operation Function>.
-        struct Instruction
+        /// @brief Prints a table listing currently stocked items in the inventory.
+        auto list()
         {
-                using binary_fn = std::function<float(float, float)>;
+                std::printf("%32s%64s%16s%8s\n", "Product", "Model Name", "Price (GBP)", "Qty.");
+                std::for_each(items.begin(), items.end(), [](const auto& item) {
+                        std::printf("%32s%64s%16.2f%8d\n", get_product_name(item.id).data(), item.name.c_str(), item.price, item.nstock);
+                });
+                std::printf("---------------\n");
+        }
+};
 
-                Operations op;
-                binary_fn  fn;
-
-                Instruction() : op {Operations::Invalid}, fn {nullptr} {}
-                Instruction(Operations op, binary_fn fn) : op {op}, fn {fn} {}
+struct InventoryUI
+{
+        enum class Option
+        {
+                Invalid      = -1,
+                AddItem      = 'a',
+                RemoveItem   = 'r',
+                EditItem     = 'e',
+                SearchItem   = 's',
+                ListProducts = 'p',
+                ListItems    = 'l',
+                Quit         = 'q',
         };
 
-        // An extensible calculator that in addition to performing the basic operations
-        // enables the user to add and perform new, but predefined, operations.
-        struct Calculator
+        Inventory inventory;
+
+        auto      user_input_handler() {}
+
+        auto      list_options()
         {
-                using Instructions = std::vector<Instruction>;
+                std::printf("(%c) Add Item\n", static_cast<char>(Option::AddItem));
+                std::printf("(%c) Search Item\n", static_cast<char>(Option::SearchItem));
+                std::printf("(%c) List Product Categories\n", static_cast<char>(Option::ListProducts));
+                std::printf("(%c) List Items in Stock\n", static_cast<char>(Option::ListItems));
+                std::printf("(%c) Quit\n", static_cast<char>(Option::Quit));
+        }
 
-                enum class Error
-                {
-                        Ok,
-                        InvalidOperationSelected,
-                        OperationAlreadyExists,
-                };
-
-                Instructions instructions;
-
-                Calculator()
-                {
-                        instructions.reserve(static_cast<int>(Operations::Count));        // reserve space for the operations we have
-
-                        // add our default operations
-                        instructions.emplace_back(Operations::Addition, [](float lhs, float rhs) { return lhs + rhs; });
-                        instructions.emplace_back(Operations::Subtraction, [](float lhs, float rhs) { return lhs - rhs; });
-                        instructions.emplace_back(Operations::Multiplication, [](float lhs, float rhs) { return lhs * rhs; });
-                        instructions.emplace_back(Operations::Division, [](float lhs, float rhs) { return lhs / rhs; });
-                }
-
-                /// @brief Computes the result of the given operation `lhs op rhs`.
-                ///
-                /// @returns If the selected operation does not exist, then an empty optional is returned.
-                auto compute(Operations op, float lhs, float rhs) -> std::optional<float>
-                {
-                        // find the given operation in our store
-                        const auto pinstr = std::find_if(instructions.begin(), instructions.end(), [op](const auto& i) { return i.op == op; });
-
-                        // compute and return the result if operation is found
-                        if (pinstr != instructions.end()) { return {pinstr->fn(lhs, rhs)}; }
-
-                        return {};
-                }
-
-                /// @brief Append new operation to the store.
-                ///
-                /// @returns Error::Ok - if operation doesn't exist and is valid.
-                /// Error::OperationAlreadyExists - if operation already exists.
-                /// Error::InvalidOperationSelected - if operation is invalid.
-                auto add_new_op(Operations op)
-                {
-                        // check if valid operation
-                        if (!is_valid_op(op)) { return Error::InvalidOperationSelected; }
-
-                        // check if op is default op
-                        if (!is_default_op(op))
-                        {
-                                // check if already exists in our store
-                                if (std::none_of(instructions.begin(), instructions.end(), [&](const auto& i) { return i.op == op; }))
-                                {
-                                        // add the requested operation
-                                        if (op == Operations::Power)
-                                        {
-                                                instructions.emplace_back(op, [](float lhs, float rhs) { return std::pow(lhs, rhs); });
-                                        }
-                                        else if (op == Operations::Remainder)
-                                        {
-                                                instructions.emplace_back(op, [](float lhs, float rhs) { return std::fmod(lhs, rhs); });
-                                        }
-
-                                        return Error::Ok;
-                                }
-                        }
-
-                        return Error::OperationAlreadyExists;
-                }
-
-                /// @brief Display the list of operations available to the user.
-                auto print_instructions()
-                {
-                        std::cout << "List of operations: " << '\n';
-                        for (auto& i : instructions)
-                        {
-                                const auto* name = get_op_name(i.op).data();
-                                std::printf("(%d) %s\n", static_cast<int>(i.op), name);
-                        }
-                }
-        };
-
-        constexpr std::string_view InvalidOperationSelectedMessage = "Invalid operation selected. Please try again.\n";
-
-        /// CalculatorUI handles input and output for the console user interface, dispatching the correct operations to the calculator
-        /// and displaying the results to the user.
-        struct CalculatorUI
+        auto get_user_action()
         {
-                enum class Signal
-                {
-                        Ok,
-                        InvalidOption,
-                        Quit,
-                };
+                char opt {};
+                std::printf("Select operation: ");
+                std::scanf(" %c", &opt);
+                return opt;
+        }
 
-                enum class Option
-                {
-                        Compute = 'c',
-                        NewOp   = 'n',
-                        Quit    = 'q',
-                };
+        /// @brief Adds item to the inventory.
+        auto handle_add_option()
+        {
+                Item item;
+                do {
+                        list_products();
 
-                Calculator calc;
+                        std::printf("Select product category to add: ");
+                        int pid {};
+                        std::scanf("%d", &item.id);
 
-                CalculatorUI() : calc {} {}
-
-                /// @brief Returns a function that handles the users selected option.
-                auto user_option_handler() -> std::function<Signal()>
-                {
-                        char opt {};
-                        std::cout << "Select function (c)Compute (n)New Operation (q)Quit: ";
-                        std::cin >> opt;
-
-                        if (opt == static_cast<char>(Option::NewOp))
+                        if (!is_valid_product(item.id)) { std::printf("Invalid option selected. Please try again.\n"); }
+                        else
                         {
-                                return [this]() {
-                                        int opt {};
-                                        std::cout << "(4)Power, (5)Remainder: ";
-                                        std::cin >> opt;
+                                // NOTE(CA, 28.03.2022) - Important to note that we need to consume the whitespaces from user input when using getline
+                                std::printf("Enter model name: ");
+                                std::getline(std::cin >> std::ws, item.name);
 
-                                        const auto err = calc.add_new_op(static_cast<Operations>(opt));
-                                        if (err != Calculator::Error::Ok && err != Calculator::Error::InvalidOperationSelected)
-                                        {
-                                                std::cout << InvalidOperationSelectedMessage;
-                                                return Signal::InvalidOption;
-                                        }
+                                std::printf("Enter price: ");
+                                std::cin >> item.price;
 
-                                        return Signal::Ok;
-                                };
+                                std::printf("Enter quantity: ");
+                                std::cin >> item.nstock;
+
+                                return item;
                         }
 
-                        if (opt == static_cast<char>(Option::Compute))
-                        {
-                                return [this]() {
-                                        calc.print_instructions();
+                } while (true);
+        }
 
-                                        int op {};
-                                        std::cin >> op;
+        /// @brief Search item by name or product category to perform remove or edit operations on the found item.
+        auto handle_search_option()
+        {
+                char opt {};
+                std::printf("Search by (n) Name, (p) Product Category: ");
+                std::cin >> opt;
 
-                                        const auto uop = static_cast<Operations>(op);        // user selected operation
-                                        if (!is_valid_op(uop))
-                                        {
-                                                std::cout << InvalidOperationSelectedMessage;
-                                                return Signal::InvalidOption;
-                                        }
+                Inventory::ItemPtr pitem;
 
-                                        // get numbers from user
-                                        float lhs {}, rhs {};
-                                        std::cout << "Enter arguments (a b): ";
-                                        std::cin >> lhs;
-                                        std::cin >> rhs;
+                if (opt == 'n')
+                {
+                        // search for item by name
+                        std::string name {};
+                        std::printf("Enter model name: ");
+                        std::getline(std::cin >> std::ws, name);
+                        pitem = inventory.search([&](const Item& item) { return item.name == name; });
+                }
+                else if (opt == 'p')
+                {
+                        // search for item by product id
+                        Product prod {Product::Invalid};
+                        list_products();
+                        std::printf("Select product id: ");
+                        std::scanf("%d", &prod);
 
-                                        // compute result and display to user
-                                        const auto res = calc.compute(uop, lhs, rhs);
-                                        if (res) { std::cout << "Result = " << res.value() << '\n'; }
-
-                                        return Signal::Ok;
-                                };
-                        }
-
-                        if (opt == static_cast<char>(Option::Quit))
-                        {
-                                return [this]() { return Signal::Quit; };
-                        }
-
-                        return [this]() { return Signal::InvalidOption; };
+                        pitem = inventory.search([&](const Item& item) { return item.id == prod; });
+                }
+                else
+                {
+                        std::printf("Invalid option selected. Please try again.\n");
+                        return;
                 }
 
-                auto run()
+                // if item was found
+                if (pitem != Inventory::ItemPtr {})
                 {
-                        std::cout << "Calc v0.1.\n";
+                        // we ask the user what they'd like to do with this found item
                         do {
-                                const auto handler = user_option_handler();
-                                if (handler() == CalculatorUI::Signal::Quit) { break; }
+                                std::printf("(%c) Remove Item\n", static_cast<char>(Option::RemoveItem));
+                                std::printf("(%c) Edit Item\n", static_cast<char>(Option::EditItem));
+                                std::printf("(%c) Quit\n", static_cast<char>(Option::Quit));
+                                const auto opt = get_user_action();
+
+                                if (opt == static_cast<char>(Option::RemoveItem))
+                                {
+                                        inventory.remove(pitem);
+                                        break;
+                                }
+                                else if (opt == static_cast<char>(Option::EditItem))
+                                {
+                                        // NOTE(CA, 28.03.2022) - This is cumbersome to use and also inefficient. You should swap in-place or
+                                        // just edit a property of interest but that'd be more complicated.
+                                        const auto new_item = handle_add_option();
+                                        inventory.remove(pitem);
+                                        inventory.add(new_item);
+                                        break;
+                                }
+                                else if (opt == static_cast<char>(Option::Quit)) { break; }
+                                else { std::printf("Invalid option selected. Please try again.\n"); }
                         } while (true);
                 }
-        };
-}        // namespace calc
+                else { std::printf("Item not found. Try adding an item.\n"); }
+        }
+
+        auto run()
+        {
+                std::printf("Shop Inventory v0.1\n");
+
+                do {
+                        list_options();
+                        const auto opt = get_user_action();
+                        if (opt == static_cast<char>(Option::AddItem))
+                        {
+                                const auto item = handle_add_option();
+                                inventory.add(item);
+                                std::printf("Added item\n\n");
+                        }
+                        else if (opt == static_cast<char>(Option::SearchItem)) { handle_search_option(); }
+                        else if (opt == static_cast<char>(Option::ListProducts)) { list_products(); }
+                        else if (opt == static_cast<char>(Option::ListItems)) { inventory.list(); }
+                        else if (opt == static_cast<char>(Option::Quit)) { break; }
+                        else { std::printf("Invalid option selected. Please try again.\n"); }
+                } while (true);
+        }
+};
 
 auto main() -> int
 {
-        calc::CalculatorUI calc_ui {};
-        calc_ui.run();
+        InventoryUI ui {};
+
+        ui.run();
 }
