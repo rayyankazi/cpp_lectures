@@ -130,8 +130,6 @@ struct InventoryUI
 
         Inventory inventory;
 
-        auto      user_input_handler() {}
-
         auto      list_options()
         {
                 std::printf("(%c) Add Item\n", static_cast<char>(Option::AddItem));
@@ -232,7 +230,8 @@ struct InventoryUI
                                         inventory.remove(pitem);
                                         break;
                                 }
-                                else if (opt == static_cast<char>(Option::EditItem))
+
+                                if (opt == static_cast<char>(Option::EditItem))
                                 {
                                         // NOTE(CA, 28.03.2022) - This is cumbersome to use and also inefficient. You should swap in-place or
                                         // just edit a property of interest but that'd be more complicated.
@@ -241,8 +240,10 @@ struct InventoryUI
                                         inventory.add(new_item);
                                         break;
                                 }
-                                else if (opt == static_cast<char>(Option::Quit)) { break; }
-                                else { std::printf("Invalid option selected. Please try again.\n"); }
+
+                                if (opt == static_cast<char>(Option::Quit)) { break; }
+
+                                std::printf("Invalid option selected. Please try again.\n");
                         } while (true);
                 }
                 else { std::printf("Item not found. Try adding an item.\n"); }
