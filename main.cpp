@@ -39,6 +39,7 @@ constexpr std::string_view PRODUCT_NAMES[static_cast<int>(Product::Count)] = {
 };
 
 /// @brief Checks if the given product is valid.
+/// @see https://github.com/c2akula/cpp_lectures/tree/cda898565bf1b0981c8456deebf969be3d6c4a0f
 constexpr auto is_valid_product(Product prod) { return prod > Product::Invalid && prod < Product::Count; }
 
 /// @brief Return the name of the given product.
