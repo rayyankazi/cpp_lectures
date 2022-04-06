@@ -20,6 +20,7 @@ class Matrix
 
         /// @brief Get/Set element at location (i, j).
         auto operator()(const int i, const int j) -> T& { return data[i * nc + j]; }
+        auto operator()(const int i, const int j) const -> const T& { return data[i * nc + j]; }
 
         /// @brief Changes the shape of the matrix to the new shape.
         /// @param nr No. of rows
@@ -42,6 +43,7 @@ class Matrix
         /// @brief Returns the shape of the matrix.
         auto shape() const { return std::make_pair(nr, nc); }
 
+        /// @brief Display the matrix in a neatly formatted way.
         auto show() const
         {
                 for (auto i = 0; i < nr; i++)
@@ -71,4 +73,7 @@ auto           main() -> int
 
         // print the matrix
         m.show();
+
+        const MatI n {{1, 2, 3, 4, 5}};
+        n(0, 1);
 }
