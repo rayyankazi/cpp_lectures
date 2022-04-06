@@ -4,7 +4,7 @@
 /*
         matrix.hpp provides a simple to use matrix class. It's by no means optimized for performance, but aimed at educational use for convenience.
         Any use of this header file must include this comment along with the link from where this file is obtained.
-
+        https://github.com/c2akula/cpp_lectures/blob/8e201846fc61db59c0f2c6640c6929fade80499a/matrix.hpp
 
         Author: Chatrapathi Akula
         Date: 06.04.2022
