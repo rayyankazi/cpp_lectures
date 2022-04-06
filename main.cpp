@@ -1,43 +1,30 @@
-#include <algorithm>
+#include <initializer_list>
 #include <iostream>
+#include <vector>
 
-auto function_name(const int x) { return x * 2; }
-
-struct Animal
+template<typename T>
+class Array
 {
-        std::string name;
+        std::vector<T> data;
+        int            nr, nc;
 
-        Animal(std::string name) : name{name} {}
+      public:
+        Array(int nr, int nc) : data(nr * nc), nr {nr}, nc {nc} {}
+        Array(std::initializer_list<T> val) : data {val}, nr {1}, nc {static_cast<int>(val.size())} {}
 
-        auto say()
-        {
-                auto y = "foo";
-                auto hello_greeting = [&, this]() {
-                        std::cout << y << ' ';
-                        std::cout << name << '\n';
-                };
-
-                hello_greeting();
-        }
+        auto put(int i, int j, T v) { data[i * nc + j] = v; }
+        auto get(int i, int j) { return data[i * nc + j]; }
 };
 
-auto main() -> int
+using MatI       = Array<int>;
+
+constexpr auto M = 20;
+
+auto           main() -> int
 {
-        auto y  = 45;
-        auto y1 = 46;
-        std::cout << "y before: " << y << '\n';
-        std::cout << "y1 before: " << y1 << '\n';
-        auto lambda_expression = [&](const int x) {
-                y++;
-                y1++;
-                return x * 2;
-        };        // non-capturing lambda expression
+        int sz;
+        std::cout << "Please enter the size of your matrix: ";
+        std::cin >> sz;
 
-        lambda_expression(4);
-
-        std::cout << "y after: " << y << '\n';
-        std::cout << "y1 after: " << y1 << '\n';
-
-        Animal cat("Cat");
-        cat.say();
+        MatI m {{1, 2, 3, 4}};
 }
